@@ -1,0 +1,62 @@
+#!/usr/bin/env perl
+
+while (<>) {
+    my $line = $_;
+    chomp($line);
+  HEADER:
+    if ($line =~ /^[\-{3}|\+{3}]/) {
+	next;
+    } elsif ($line =~ /^\@{2}/) {
+	<>;
+	chomp($_);
+	my (
+	    undef,
+	    $ref_coords,
+	    $qry_coords,
+	    undef
+	    ) = split(' ',$_);
+	# Remove the minus/plus signs from the front
+	$ref_coords = substr($ref_coords,1);
+	$qry_coords = substr($qry_coords,1);
+
+	my ($ref_pos, $ref_ind) = split(",",$ref_coords);
+	my ($new_pos, $qry_ind) = split(",",$qry_coords);
+	my ($del, $ins);
+	# There's a bug here since it assumes the first character is context.
+	# That's not necessarily the case for the first hunk
+	my $context_a = <>;
+	chomp($context_a);
+	$context_a = substr($context_a,1);
+	print $ref_ind,"\n";
+	for (my $i=1; $i < $ref_ind+$qry_ind-4; $i++) {
+	    $line = <>;
+	    chomp($line);
+	    if ($line =~ /^\-{1}/) {
+		$del = $del . substr($line,1);
+	    } elsif ($line =~ /^\+{1}/) {
+		$ins = $ins . substr($line,1);
+	    }
+	}
+	my $context_b = <>;
+	chomp($context_b);
+	$context_b = substr($context_b,1);
+      VCFPRINT:
+	print(
+	    join("\t",(
+		     "quiver1",
+		     $ref_pos,
+		     ".",
+		     $context_a . $del . $context_b,
+		     $context_a . $ins . $context_b,
+		     ".",
+		     "PASS"
+		 )
+	    )."\n"
+	    );
+    }
+    else {
+	next;
+#	print $_;
+#	die "Unexpected line: $line\n";
+    }
+}
