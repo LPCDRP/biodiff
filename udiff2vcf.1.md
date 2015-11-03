@@ -18,12 +18,6 @@ converts the result of **diff --unified=1 --ignore-case** to the
 variant calling format for downstream bioinformatic analysis. Input is
 read from stdin and output is written to stdout.
 
-# BUGS
-
-* The output may contain fencepost errors.
-* Insertions and the deletions at the beginning and end of the sequence will
-  have a base that is incorrectly treated as context.
-
 # EXAMPLE
 
 ~~~

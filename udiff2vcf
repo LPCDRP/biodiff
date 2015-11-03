@@ -1,5 +1,8 @@
 #!/usr/bin/env perl
 
+use strict;
+use warnings;
+
 while (<>) {
     my $line = $_;
     chomp($line);
@@ -7,39 +10,50 @@ while (<>) {
     if ($line =~ /^[\-{3}|\+{3}]/) {
 	next;
     } elsif ($line =~ /^\@{2}/) {
-	<>;
-	chomp($_);
 	my (
 	    undef,
 	    $ref_coords,
 	    $qry_coords,
 	    undef
-	    ) = split(' ',$_);
+	    ) = split(' ',$line);
 	# Remove the minus/plus signs from the front
 	$ref_coords = substr($ref_coords,1);
 	$qry_coords = substr($qry_coords,1);
 
 	my ($ref_pos, $ref_ind) = split(",",$ref_coords);
 	my ($new_pos, $qry_ind) = split(",",$qry_coords);
-	my ($del, $ins);
-	# There's a bug here since it assumes the first character is context.
-	# That's not necessarily the case for the first hunk
-	my $context_a = <>;
-	chomp($context_a);
-	$context_a = substr($context_a,1);
-	print $ref_ind,"\n";
-	for (my $i=1; $i < $ref_ind+$qry_ind-4; $i++) {
+	$qry_ind = 1 if not defined($qry_ind);
+
+	my ($del, $ins) = ('', '');
+	my ($context_a, $context_b);
+
+	my ($i,$j) = (1,1);
+	while ($i <= $ref_ind && $j <= $qry_ind) {
 	    $line = <>;
 	    chomp($line);
 	    if ($line =~ /^\-{1}/) {
 		$del = $del . substr($line,1);
+		$i++;
 	    } elsif ($line =~ /^\+{1}/) {
 		$ins = $ins . substr($line,1);
+		$j++;
+	    } elsif ($line =~ /^\s{1}/) {
+		if  ($i==$ref_ind && $j==$qry_ind) {
+		    $context_b = substr($line,1);
+		    $context_a = '' if not defined($context_a);
+		} elsif ( $i==1 && $j==1 ) {
+		    $context_a = substr($line,1);
+		} else {
+		    # insert and delete the same base
+		    # This is part of the same "hunk" and so is probably
+		    # part of the same event
+		    $ins = $ins . substr($line,1);
+		    $del = $del . substr($line,1);
+		}
+		$i++;
+		$j++;
 	    }
 	}
-	my $context_b = <>;
-	chomp($context_b);
-	$context_b = substr($context_b,1);
       VCFPRINT:
 	print(
 	    join("\t",(
@@ -55,8 +69,7 @@ while (<>) {
 	    );
     }
     else {
-	next;
-#	print $_;
-#	die "Unexpected line: $line\n";
+	print $_;
+	die;
     }
 }
