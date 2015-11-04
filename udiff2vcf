@@ -63,7 +63,8 @@ while (<>) {
 		     $context_a . $del . $context_b,
 		     $context_a . $ins . $context_b,
 		     ".",
-		     "PASS"
+		     "PASS",
+		     "."
 		 )
 	    )."\n"
 	    );
