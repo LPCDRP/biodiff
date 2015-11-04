@@ -9,6 +9,7 @@ out.diff: $(subst .fasta,.txt,$(REFERENCE) $(QUERY))
 	-diff					\
 		--ignore-case			\
 		--unified=1			\
+		--minimal			\
 		$^ > $@
 
 %.txt: %.fasta
