@@ -54,6 +54,12 @@ while (<>) {
 		$j++;
 	    }
 	}
+	# SNP - we don't need context for them
+	if (length($ins) == length($del)) {
+	    $ref_pos = $ref_pos + length($context_a);
+	    $context_a = '';
+	    $context_b = '';
+	}
       VCFPRINT:
 	print(
 	    join("\t",(
