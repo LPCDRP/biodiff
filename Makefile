@@ -20,7 +20,9 @@ out.diff: $(subst .fasta,.txt,$(REFERENCE) $(QUERY))
 
 %.txt: %.fasta
 	tail -n+2 $< | \
-	perl -n -e 'chomp; print join("\n",split("",$$_))."\n"' > $@
+	perl -n -e 'chomp; print join("\n",split("",$$_))."\n"' | \
+	sed -e '$$a\ ' > $@
+
 
 # http://vcftools.sourceforge.net/perl_module.html
 check: final.vcf.gz final.vcf.gz.tbi
