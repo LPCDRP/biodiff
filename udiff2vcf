@@ -3,6 +3,14 @@
 use strict;
 use warnings;
 
+use Getopt::Std;
+
+my %opts;
+
+getopts('r:', \%opts);
+
+die "The reference sequence ID is not defined" if not defined $opts{'r'};
+
 while (<>) {
     my $line = $_;
     chomp($line);
@@ -63,7 +71,7 @@ while (<>) {
       VCFPRINT:
 	print(
 	    join("\t",(
-		     "quiver1",
+		     $opts{'r'},
 		     $ref_pos,
 		     ".",
 		     $context_a . $del . $context_b,
