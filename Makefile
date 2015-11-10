@@ -6,7 +6,7 @@ final.vcf: vcf-header out.vcf
 	cat $^ > $@
 
 out.vcf: out.diff
-	./udiff2vcf -r $(REFERENCE_ID) < $< > $@
+	./udiff2vcf -r '$(REFERENCE_ID)' < $< > $@
 
 out.diff: $(subst .fasta,.txt,$(REFERENCE) $(QUERY))
 # * Ignore the return code of diff because it returns 1 if the files
