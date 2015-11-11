@@ -1,0 +1,30 @@
+#!/bin/bash
+
+VERSION=0.1
+
+reference="$1"
+query="$2"
+
+read-fasta () {
+    tail -n+2 "$1" |							\
+	perl -n -e 'chomp; print join("\n",split("",$_))."\n"' |	\
+	sed -e '$a\ '
+}
+
+get-id () {
+    head -n1 "$1" | sed 's/>//' | cut --fields=1 --delimiter=' '
+}
+
+refid=$(get-id "$reference")
+
+cat <<EOF
+##fileformat=VCFv4.2
+##source=biodiffV${VERSION}
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+EOF
+
+diff --ignore-case						\
+     --unified=1						\
+     --minimal							\
+     <(read-fasta "$reference") <(read-fasta "$query") |	\
+    udiff2vcf -r "$refid"
