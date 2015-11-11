@@ -14,6 +14,6 @@ biodiff - compare biological sequences
 
 **biodiff** is a simple utility originally developed for whole genome
 comparisons. It uses **diff**(1), an implementation of Myer's
-algorithm to find longest common substring and determine the minimal difference
+algorithm to find longest common substrings and determine the minimal difference
 between the sequences. Output is in the Variant Call Format.
 
