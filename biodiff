@@ -7,8 +7,7 @@ query="$2"
 
 read-fasta () {
     tail -n+2 "$1" |							\
-	perl -n -e 'chomp; print join("\n",split("",$_))."\n"' |	\
-	sed -e '$a\ '
+	perl -n -e 'chomp; print join("\n",split("",$_))."\n"'
 }
 
 get-id () {
@@ -26,5 +25,6 @@ EOF
 diff --ignore-case						\
      --unified=1						\
      --minimal							\
+     --ignore-blank-lines					\
      <(read-fasta "$reference") <(read-fasta "$query") |	\
     udiff2vcf -r "$refid"
