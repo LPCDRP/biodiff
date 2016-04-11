@@ -6,6 +6,8 @@ dist_bin_SCRIPTS = biodiff \
 man_MANS = biodiff.1 \
            udiff2vcf.1
 
+EXTRA_DIST = LICENSE $(addsuffix .md,$(man_MANS))
+
 #TESTS = $(foreach type,vcf patch, $(subst qry.fasta,$(type).sh,$(wildcard $(srcdir)/test/lambda-phage/*.qry.fasta)))
 
 #AM_TESTS_ENVIRONMENT = PATH="$(srcdir):$$PATH"; export PATH;
