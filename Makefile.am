@@ -6,9 +6,9 @@ dist_bin_SCRIPTS = biodiff \
 man_MANS = biodiff.1 \
            udiff2vcf.1
 
-TESTS = $(foreach type,vcf patch, $(subst qry.fasta,$(type).sh,$(wildcard $(srcdir)/test/lambda-phage/*.qry.fasta)))
+#TESTS = $(foreach type,vcf patch, $(subst qry.fasta,$(type).sh,$(wildcard $(srcdir)/test/lambda-phage/*.qry.fasta)))
 
-TESTS_ENVIRONMENT = PATH="$(srcdir):$$PATH"; export PATH;
+#AM_TESTS_ENVIRONMENT = PATH="$(srcdir):$$PATH"; export PATH;
 
 %.1: %.1.md
 	pandoc -s --from=markdown --to=man $< > $@
