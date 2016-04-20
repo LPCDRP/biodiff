@@ -45,19 +45,8 @@ bcftools isec query1.vcf.gz query2.vcf.gz
 
 # BUGS
 
-* **biodiff**, despite the name, is currently not biologically-aware and knows nothing of reverse-complemented sequences.
-If the genomes you are comparing have inversions with respect to each other, those regions will be shown as having many small scattered variants.
-
-* There still seems to be some whitespace issues with regard to input fasta files, like missing a newline at the end of your fasta file.
-If you get an error when doing a comparison, it may be due to such issues.
-A quick workaround is to swap the input arguments, thereby using the query as the reference instead.
-That may or may not help.
-
-* The VCF header does not properly set the chromosome name.
-It currently uses the fasta header as such (rather than assigning it the proper number and adding that annotation to the VCF header).
-This doesn't create any issues for using the output with **bcftools**(1) or **vcftools**(1), however.
-
-* **biodiff** hasn't been tested with multi-fasta files and probably doesn't handle them correctly.
+Please see our issue tracker for known issues.
+https://github.com/valafarlab/biodiff/issues
 
 # SEE ALSO
 
