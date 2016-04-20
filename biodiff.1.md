@@ -30,7 +30,7 @@ biodiff NC_123456.1.fasta NC_123456.2.fasta
 
 The output goes to your terminal.
 
-## Quick comparisons
+## Comparison of variants between samples
 You will typically want to normalize and left-align variants, especially when comparing variants between different samples, as variants within repetitive sequences can be accurately represented in multiple ways and falsely appear to be different.
 
 ~~~
