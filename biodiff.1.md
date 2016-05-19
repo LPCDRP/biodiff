@@ -13,7 +13,7 @@ biodiff - compare biological sequences
 # DESCRIPTION
 
 Genome comparison tools are often vague regarding the positions of large insertions and deletions.
-It can be helpful to first get an accurate picture of the plain insertions and deletions that differentiate two sequences, before trying to decide whether they represent translations, tandem copy number variation, or anything else.
+It can be helpful to first get an accurate picture of the plain insertions and deletions that differentiate two sequences, before trying to decide whether they represent translocations, tandem copy number variation, or anything else.
 
 **biodiff** is a simple utility developed for such whole genome comparisons.
 It uses **diff**(1), an implementation of Myer's algorithm to find longest common substrings and determine the minimal difference between the sequences.
