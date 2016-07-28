@@ -3,17 +3,21 @@
 dist_bin_SCRIPTS = biodiff \
                    udiff2vcf
 
+PANDOC = @PANDOC@
+
+if HAVE_PANDOC
 man_MANS = biodiff.1 \
            udiff2vcf.1
+endif
 
-EXTRA_DIST = LICENSE $(addsuffix .md,$(man_MANS))
+EXTRA_DIST = LICENSE $(addsuffix .1.md,$(dist_bin_SCRIPTS))
 
 #TESTS = $(foreach type,vcf patch, $(subst qry.fasta,$(type).sh,$(wildcard $(srcdir)/test/lambda-phage/*.qry.fasta)))
 
 #AM_TESTS_ENVIRONMENT = PATH="$(srcdir):$$PATH"; export PATH;
 
 %.1: %.1.md
-	pandoc -s --from=markdown --to=man $< > $@
+	$(PANDOC) -s --from=markdown --to=man $< > $@
 
 %.vcf.sh: %.qry.fasta
 	echo "#!/bin/sh" > $@
