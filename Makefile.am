@@ -10,7 +10,8 @@ man_MANS = biodiff.1 \
            udiff2vcf.1
 endif
 
-EXTRA_DIST = LICENSE $(addsuffix .1.md,$(dist_bin_SCRIPTS))
+EXTRA_DIST = LICENSE $(addsuffix .1.md,$(dist_bin_SCRIPTS)) \
+test/integration-wrapper test/exec/integration
 
 TESTS = test/integration-wrapper
 
