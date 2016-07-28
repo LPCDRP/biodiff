@@ -22,6 +22,7 @@ AM_TESTS_ENVIRONMENT = PATH="$(srcdir):$(srcdir)/test/exec:$$PATH"; DATADIR="$(s
 
 clean-local:
 	$(RM) -r integration.*
+	$(RM) $(man_MANS)
 
 # http://gnu-automake.7480.n7.nabble.com/DELETE-ON-ERROR-test-suite-log-and-PRECIOUS-td20856.html
 .PRECIOUS: $(TEST_SUITE_LOG)
