@@ -18,6 +18,10 @@ TESTS = test/integration-wrapper
 
 AM_TESTS_ENVIRONMENT = PATH="$(srcdir):$(srcdir)/test/exec:$$PATH"; DATADIR="$(srcdir)/test/lambda-phage"; export PATH DATADIR;
 
+installcheck-local:
+	DATADIR="$(srcdir)/test/lambda-phage" \
+	PATH="$(srcdir)/test/exec:$$PATH" $(srcdir)/test/integration-wrapper
+
 %.1: %.1.md
 	$(PANDOC) -s --from=markdown --to=man $< > $@
 

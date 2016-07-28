@@ -35,3 +35,10 @@ autoreconf -i
 ~~~
 
 Then you can follow the steps above for a release distribution.
+
+
+# Testing the Installed Version
+
+~~~
+make installcheck
+~~~
