@@ -12,30 +12,15 @@ endif
 
 EXTRA_DIST = LICENSE $(addsuffix .1.md,$(dist_bin_SCRIPTS))
 
-#TESTS = $(foreach type,vcf patch, $(subst qry.fasta,$(type).sh,$(wildcard $(srcdir)/test/lambda-phage/*.qry.fasta)))
+TESTS = test/integration-wrapper
 
-#AM_TESTS_ENVIRONMENT = PATH="$(srcdir):$$PATH"; export PATH;
+AM_TESTS_ENVIRONMENT = PATH="$(srcdir):$(srcdir)/test/exec:$$PATH"; DATADIR="$(srcdir)/test/lambda-phage"; export PATH DATADIR;
 
 %.1: %.1.md
 	$(PANDOC) -s --from=markdown --to=man $< > $@
 
-%.vcf.sh: %.qry.fasta
-	echo "#!/bin/sh" > $@
-	echo "biodiff test/lambda-phage/reference.fasta $< > $*.vcf" >> $@
-	chmod +x $@
-
-%.patch.sh: %.qry.fasta
-	echo "#!/bin/sh" > $@
-	echo "$(BGZIP) -f $*.vcf" >> $@
-	echo "$(TABIX) -p vcf $*.vcf.gz" >> $@
-	chmod +x $@
-
-test/lambda-phage/%.vcf.gz: test/lambda-phage/%.vcf
-	$(BGZIP) $<
-	$(TABIX) -p vcf $@
-
-test/lambda-phage/%.vcf: test/lambda-phage/%.qry.fasta
-	biodiff test/lambda-phage/reference.fasta $< > $@
-
 clean-local:
-	$(RM) test/lambda-phage/*.vcf* test/lambda-phage/*.sh
+	$(RM) -r integration.*
+
+# http://gnu-automake.7480.n7.nabble.com/DELETE-ON-ERROR-test-suite-log-and-PRECIOUS-td20856.html
+.PRECIOUS: $(TEST_SUITE_LOG)

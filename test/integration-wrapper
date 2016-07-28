@@ -1,0 +1,8 @@
+#!/bin/sh
+
+tests=$(ls "$DATADIR" | grep -v reference.fasta)
+
+for item in $tests
+do
+    integration $DATADIR/reference.fasta $DATADIR/$item
+done

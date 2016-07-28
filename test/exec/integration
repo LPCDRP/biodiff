@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -e
+
+reference="$1"
+query="$2"
+
+query_stem=$(basename $query .fasta)
+testdir=$(mktemp -d integration.${query_stem}.XXX)
+
+variants=$testdir/$query_stem.vcf.gz
+consensus=$testdir/$query_stem.reconstituted.fasta
+
+echo "testing ${query_stem} in ${PWD}/${testdir}"
+echo "Reference is $reference"
+echo "Query is $query"
+
+stringify () {
+    grep -v '^>' $1 | tr -d '\n' | tr [A-Z] [a-z]
+}
+
+clean_up () {
+    mv $testdir $testdir.del && rm -rf $testdir.del
+}
+
+biodiff $reference $query | bgzip -c > $variants
+tabix -p vcf $variants
+
+bcftools consensus -f $reference $variants > $consensus
+
+test `stringify $query` = `stringify $consensus` \
+    && clean_up # only clean up if the test is successful
