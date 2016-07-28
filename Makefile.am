@@ -11,7 +11,8 @@ man_MANS = biodiff.1 \
 endif
 
 EXTRA_DIST = LICENSE $(addsuffix .1.md,$(dist_bin_SCRIPTS)) \
-test/integration-wrapper test/exec/integration
+test/integration-wrapper test/exec/integration \
+$(srcdir)/test/lambda-phage/*
 
 TESTS = test/integration-wrapper
 
