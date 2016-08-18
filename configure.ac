@@ -1,4 +1,4 @@
-AC_INIT([biodiff],[0.1.3],[aelghraoui@sdsu.edu])
+AC_INIT([biodiff],[0.1.4],[aelghraoui@sdsu.edu])
 AC_PATH_PROG([DIFF], [diff])
 AC_PATH_PROG([PERL], [perl])
 AC_PATH_PROG([BCFTOOLS], [bcftools])
