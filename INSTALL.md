@@ -16,8 +16,8 @@ To run the test suite, you will additionally need the following:
 
 ## Release Distribution
 
-The release distribution is *not* the same as the "Source Code" downloads produced by Github.
-On the [Releases](https://github.com/valafarlab/biodiff/releases) page, this section's directions apply to the downloads that are named "biodiff-*version*.tar.gz".
+The release distribution is *not* the same as the source code downloads produced by Gitlab.
+On the [Tags](https://gitlab.com/LPCDRP/biodiff/tags) page, this section's directions apply to the downloads that are named "biodiff-*version*.tar.gz".
 
 ~~~
 ./configure
@@ -26,7 +26,7 @@ make check
 make install
 ~~~
 
-## From Git or "Source Code" download
+## From Git or source code download
 
 You will additionally need autoconf and automake installed.
 
