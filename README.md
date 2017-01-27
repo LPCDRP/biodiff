@@ -1,6 +1,6 @@
 % BIODIFF(1) 0.1
 % Afif Elghraoui <aelghraoui@sdsu.edu>
-% August 2016
+% January 2017
 
 # NAME
 
@@ -55,7 +55,7 @@ bcftools isec query1.vcf.gz query2.vcf.gz
 # BUGS
 
 Please see our issue tracker for known issues.
-https://github.com/valafarlab/biodiff/issues
+https://gitlab.com/LPCDRP/biodiff/issues
 
 # SEE ALSO
 
