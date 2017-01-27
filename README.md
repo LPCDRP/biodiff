@@ -4,7 +4,7 @@
 
 # NAME
 
-biodiff - compare biological sequences
+biodiff - exact comparison of biological sequences
 
 # SYNOPSIS
 
