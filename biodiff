@@ -33,9 +33,9 @@ cat <<EOF
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 EOF
 
-diff --ignore-case						\
-     --unified=1						\
-     --minimal							\
-     --ignore-blank-lines					\
-     <(read-fasta "$reference") <(read-fasta "$query") |	\
-    udiff2vcf -r "$refid"
+diff --ignore-case \
+     --unified=1 \
+     --minimal \
+     --ignore-blank-lines \
+     <(read-fasta "$reference") <(read-fasta "$query") \
+    | udiff2vcf -r "$refid"
