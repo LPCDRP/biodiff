@@ -3,19 +3,16 @@
 use strict;
 use warnings;
 
-use Getopt::Std;
+use File::Basename;
 
-my %opts;
-
-getopts('r:', \%opts);
-
-die "The reference sequence ID is not defined" if not defined $opts{'r'};
+my $ref_id;
 
 while (<>) {
     my $line = $_;
     chomp($line);
   HEADER:
-    if ($line =~ /^[\-{3}|\+{3}]/) {
+    if ($line =~ /^(\-{3}|\+{3}) (\S+)/) {
+	$ref_id = basename($2);
 	next;
     } elsif ($line =~ /^\@{2}/) {
 	my (
@@ -72,7 +69,7 @@ while (<>) {
       VCFPRINT:
 	print(
 	    join("\t",(
-		     $opts{'r'},
+		     $ref_id,
 		     $ref_pos,
 		     ".",
 		     $context_a . $del . $context_b,
@@ -83,6 +80,9 @@ while (<>) {
 		 )
 	    )."\n"
 	    );
+    }
+    elsif ($line =~ /^Only in/ || $line =~ /^diff/) {
+	next;
     }
     else {
 	print $_;

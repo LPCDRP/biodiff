@@ -1,31 +1,71 @@
-#!/bin/bash
+#!/bin/sh
+
+set -e
 
 VERSION=0.1
 
 reference="$1"
 query="$2"
 
+unset tmpdir
+tmpdir=$(mktemp --tmpdir -d biodiff.XXXX)
+refdir="$tmpdir/ref"
+qrydir="$tmpdir/qry"
+
+cleanup () {
+    rm -rf "$tmpdir"
+}
+
 usage () {
     echo "Input error - Please see biodiff(1) for usage instructions."
     exit 1
 }
 
-read-fasta () {
-    tail -n+2 "$1" |							\
-	perl -n -e 'chomp; print join("\n",split("",$_))."\n"' |	\
-	sed -e '$a\ '
+read_fasta () {
+    export outdir="$1"
+    mkdir "$outdir"
+    infile="$2"
+    perl -e "$(cat <<'EOF'
+open(my $filename, '>', '/dev/null');
+
+while(<>) {
+	chomp;
+	if ( $_ =~ /^>\s*(\S+)/) {
+		close($filename);
+		open($filename, '>', "$ENV{'outdir'}/$1");
+	} else {
+		print $filename join("\n", split('', $_))."\n";
+	}
+}
+EOF
+    )" "$infile"
 }
 
-get-id () {
-    head -n1 "$1" | sed 's/>//' | cut --fields=1 --delimiter=' '
-}
+trap cleanup EXIT
 
 if [ -z "$reference" ] || [ -z "$query" ] || [ -n "$3" ]
 then
     usage
 fi
 
-refid=$(get-id "$reference")
+read_fasta "$refdir" $reference
+read_fasta "$qrydir" $query
+
+# If we have one reference and one query, don't require matching identifiers
+if [ $(ls "$refdir" | wc -l) = 1 ] && [ $(ls "$qrydir" | wc -l) = 1 ]
+then
+    qry_id="$(basename "$qrydir/"*)"
+    ref_id="$(basename "$refdir/"*)"
+    if [ "$qry_id" != "$ref_id" ]
+    then
+	>&2 echo "Warning: The query ID does not match the reference ID."
+	>&2 echo "         comparing them anyway because that's probably what you wanted..."
+	>&2 echo "         Query ID: $qry_id"
+	>&2 echo "         Reference ID: $ref_id"
+
+	mv "$qrydir/$qry_id" "$qrydir/$ref_id"
+    fi
+fi
 
 cat <<EOF
 ##fileformat=VCFv4.2
@@ -34,8 +74,9 @@ cat <<EOF
 EOF
 
 diff --ignore-case \
+     --recursive \
      --unified=1 \
      --minimal \
      --ignore-blank-lines \
-     <(read-fasta "$reference") <(read-fasta "$query") \
-    | udiff2vcf -r "$refid"
+     "$refdir" "$qrydir" \
+    | udiff2vcf
