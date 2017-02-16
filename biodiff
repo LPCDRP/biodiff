@@ -1,31 +1,55 @@
-#!/bin/bash
+#!/bin/sh
+
+set -e
 
 VERSION=0.1
 
 reference="$1"
 query="$2"
 
+unset tmpdir
+tmpdir=$(mktemp --tmpdir -d biodiff.XXXX)
+refdir="$tmpdir/ref"
+qrydir="$tmpdir/qry"
+
+cleanup () {
+    rm -rf "$tmpdir"
+}
+
 usage () {
     echo "Input error - Please see biodiff(1) for usage instructions."
     exit 1
 }
 
-read-fasta () {
-    tail -n+2 "$1" |							\
-	perl -n -e 'chomp; print join("\n",split("",$_))."\n"' |	\
-	sed -e '$a\ '
+read_fasta () {
+    export outdir="$1"
+    mkdir "$outdir"
+    infile="$2"
+    perl -e "$(cat <<'EOF'
+open(my $filename, '>', '/dev/null');
+
+while(<>) {
+	chomp;
+	if ( $_ =~ /^>\s*(\S+)/) {
+		close($filename);
+		open($filename, '>', "$ENV{'outdir'}/$1");
+	} else {
+		print $filename join("\n", split('', $_))."\n";
+	}
+}
+EOF
+    )" "$infile"
 }
 
-get-id () {
-    head -n1 "$1" | sed 's/>//' | cut --fields=1 --delimiter=' '
-}
+trap cleanup EXIT
 
 if [ -z "$reference" ] || [ -z "$query" ] || [ -n "$3" ]
 then
     usage
 fi
 
-refid=$(get-id "$reference")
+read_fasta "$refdir" $reference
+read_fasta "$qrydir" $query
 
 cat <<EOF
 ##fileformat=VCFv4.2
@@ -34,8 +58,9 @@ cat <<EOF
 EOF
 
 diff --ignore-case \
+     --recursive \
      --unified=1 \
      --minimal \
      --ignore-blank-lines \
-     <(read-fasta "$reference") <(read-fasta "$query") \
-    | udiff2vcf -r "$refid"
+     "$refdir" "$qrydir" \
+    | udiff2vcf
