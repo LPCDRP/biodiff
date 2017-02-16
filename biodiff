@@ -5,6 +5,11 @@ VERSION=0.1
 reference="$1"
 query="$2"
 
+usage () {
+    echo "Input error - Please see biodiff(1) for usage instructions."
+    exit 1
+}
+
 read-fasta () {
     tail -n+2 "$1" |							\
 	perl -n -e 'chomp; print join("\n",split("",$_))."\n"' |	\
@@ -14,6 +19,11 @@ read-fasta () {
 get-id () {
     head -n1 "$1" | sed 's/>//' | cut --fields=1 --delimiter=' '
 }
+
+if [ -z "$reference" ] || [ -z "$query" ] || [ -n "$3" ]
+then
+    usage
+fi
 
 refid=$(get-id "$reference")
 
