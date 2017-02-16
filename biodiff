@@ -51,6 +51,22 @@ fi
 read_fasta "$refdir" $reference
 read_fasta "$qrydir" $query
 
+# If we have one reference and one query, don't require matching identifiers
+if [ $(ls "$refdir" | wc -l) = 1 ] && [ $(ls "$qrydir" | wc -l) = 1 ]
+then
+    qry_id="$(basename "$qrydir/"*)"
+    ref_id="$(basename "$refdir/"*)"
+    if [ "$qry_id" != "$ref_id" ]
+    then
+	>&2 echo "Warning: The query ID does not match the reference ID."
+	>&2 echo "         comparing them anyway because that's probably what you wanted..."
+	>&2 echo "         Query ID: $qry_id"
+	>&2 echo "         Reference ID: $ref_id"
+
+	mv "$qrydir/$qry_id" "$qrydir/$ref_id"
+    fi
+fi
+
 cat <<EOF
 ##fileformat=VCFv4.2
 ##source=biodiffV${VERSION}
