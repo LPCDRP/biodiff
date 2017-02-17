@@ -1,4 +1,4 @@
-% BIODIFF(1) 0.1
+% BIODIFF(1) 0.2
 % Afif Elghraoui <aelghraoui@sdsu.edu>
 % February 2017
 
