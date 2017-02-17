@@ -1,6 +1,6 @@
 % BIODIFF(1) 0.1
 % Afif Elghraoui <aelghraoui@sdsu.edu>
-% January 2017
+% February 2017
 
 # NAME
 
@@ -12,12 +12,14 @@ biodiff - exact comparison of biological sequences
 
 # DESCRIPTION
 
-**biodiff** determines the exact differences between two biological sequences.
+**biodiff** is a variant caller that determines the exact differences between two biological sequences.
 It can operate on DNA and protein sequences, as long as they are in fasta format.
-It uses **diff**(1), an implementation of Myer's algorithm to find longest common substrings and determine the minimal difference between the sequences.
+The sequences to be compared must have the same fasta header (up to the first whitespace).
+If the reference and query each have only one sequence, however, the header need not match and the comparison will be done, but a warning will be emitted.
 Output is in the Variant Call Format.
 
-**biodiff** is especially useful for exact genome comparison, as standard genome comparison tools are often vague regarding the positions of large insertions and deletions.
+**biodiff** uses **diff**(1), an implementation of Myer's algorithm to find longest common substrings and determine the minimal difference between the sequences.
+It is especially useful for exact genome comparison, as standard genome comparison tools are often vague regarding the positions of large insertions and deletions.
 It can be helpful to first get an accurate picture of the plain insertions and deletions that differentiate two sequences, before trying to decide whether they represent translocations, tandem copy number variation, or anything else.
 
 # EXAMPLES
