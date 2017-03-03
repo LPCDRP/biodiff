@@ -21,6 +21,35 @@ usage () {
     exit 1
 }
 
+check_inversions () {
+    ref="$1"
+    qry="$2"
+    &> /dev/null nucmer --maxmatch -p "$tmpdir/inv" "$ref" "$qry"
+    delta-filter -1 "$tmpdir/inv.delta" > "$tmpdir/inv.1filter.delta"
+    REFERENCE="$ref" show-coords -HrTd "$tmpdir/inv.1filter.delta" \
+	| perl -e "$(cat <<'EOF'
+my ($refstart, $refstop, $qrystart, $qrystop, $refdirection, $qrydirection);
+
+while(<>) {
+	chomp;
+	(
+	$refstart, $refstop,
+	$qrystart, $qrystop,
+	undef, undef, undef,
+	$refdirection, $qrydirection,
+	$reftag, $qrytag,
+	) = split("\t", $_);
+
+	if (($refdirection ne $qrydirection) && ($reftag eq $qrytag)) {
+		print join("\t", ($reftag,
+		                  $refstart,
+		                  ".",
+		                  "",)
+EOF
+)"
+
+}
+
 read_fasta () {
     export outdir="$1"
     mkdir "$outdir"
@@ -39,6 +68,17 @@ while(<>) {
 }
 EOF
     )" "$infile"
+}
+
+write_fasta () {
+    dir="$1"
+    outfasta="$2"
+    ls "$dir/*" &> /dev/null && \
+	for seq in "$dir/*"
+	do
+	    echo ">$(basename $seq)"
+	    cat "$seq"
+	done > "$outfasta"
 }
 
 trap cleanup EXIT
@@ -67,11 +107,16 @@ then
     fi
 fi
 
+write_fasta "$refdir" "$refdir.fasta"
+write_fasta "$qrydir" "$qrydir.fasta"
+
 cat <<EOF
 ##fileformat=VCFv4.2
 ##source=biodiffV${VERSION}
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 EOF
+
+check_inversions "$refdir.fasta" "$qrydir.fasta"
 
 diff --ignore-case \
      --recursive \
