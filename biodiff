@@ -8,7 +8,7 @@ reference="$1"
 query="$2"
 
 unset tmpdir
-tmpdir=$(mktemp --tmpdir -d biodiff.XXXX)
+tmpdir=$(mktemp -p /tmp -d biodiff.XXXX)
 refdir="$tmpdir/ref"
 qrydir="$tmpdir/qry"
 
@@ -33,6 +33,8 @@ while(<>) {
 	if ( $_ =~ /^>\s*(\S+)/) {
 		close($filename);
 		open($filename, '>', "$ENV{'outdir'}/$1");
+	} elsif ($_ =~ /^\s*$/) {
+		next;
 	} else {
 		print $filename join("\n", split('', $_))."\n";
 	}
@@ -73,10 +75,5 @@ cat <<EOF
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 EOF
 
-diff --ignore-case \
-     --recursive \
-     --unified=1 \
-     --minimal \
-     --ignore-blank-lines \
-     "$refdir" "$qrydir" \
+diff -irdb -U1 "$refdir" "$qrydir" \
     | udiff2vcf
