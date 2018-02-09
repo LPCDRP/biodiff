@@ -3,12 +3,20 @@
 set -e
 
 VERSION=0.2.2
+platform="$(uname)"
+
+if [ "${platform}" = "Darwin" ] || [ "${platform}" = "FreeBSD" ]
+then
+    MKTEMP="mktemp"
+else
+    MKTEMP="mktemp -p /tmp"
+fi
 
 reference="$1"
 query="$2"
 
 unset tmpdir
-tmpdir=$(mktemp -p /tmp -d biodiff.XXXXXX)
+tmpdir=$(${MKTEMP} -d biodiff.XXXXXX)
 refdir="$tmpdir/ref"
 qrydir="$tmpdir/qry"
 
