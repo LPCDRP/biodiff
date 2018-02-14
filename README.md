@@ -1,6 +1,7 @@
 % BIODIFF(1) 0.2
 % Afif Elghraoui <aelghraoui@sdsu.edu>
 % February 2017
+
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/biodiff/README.html)
 
 # NAME
