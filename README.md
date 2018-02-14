@@ -66,3 +66,4 @@ https://gitlab.com/LPCDRP/biodiff/issues
 
 **bcftools**(1)
 **dnadiff**(1)
+**Assemblytics**(1)
