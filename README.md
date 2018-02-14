@@ -57,7 +57,9 @@ bcftools isec query1.vcf.gz query2.vcf.gz
 
 # BUGS
 
-Please see our issue tracker for known issues.
+**biodiff** currently does not properly handle in-place inversions.
+
+Please report issues at
 https://gitlab.com/LPCDRP/biodiff/issues
 
 # SEE ALSO
