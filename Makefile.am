@@ -23,7 +23,8 @@ installcheck-local:
 	PATH="$(srcdir)/test/exec:$$PATH" $(srcdir)/test/integration-wrapper
 
 %.1: %.1.md
-	$(PANDOC) -s --from=markdown --to=man $< > $@
+	sed '/^\[!/d' $< `# Remove conda badge before converting to man` \
+	| $(PANDOC) -s --from=markdown --to=man > $@
 
 # Convert markdown documentation to true plain text
 # (no matter how much you try, markdown source won't really be as readable as formatted plain text)

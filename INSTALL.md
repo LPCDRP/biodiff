@@ -14,6 +14,14 @@ To run the test suite, you will additionally need the following:
 
 # Installation
 
+## Conda
+
+biodiff is available as a conda package via bioconda so it may be installed as follows:
+
+~~~
+$ conda install -c bioconda biodiff
+~~~
+
 ## Release Distribution
 
 The release distribution is *not* the same as the source code downloads produced by Gitlab.
