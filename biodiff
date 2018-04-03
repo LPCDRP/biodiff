@@ -50,6 +50,13 @@ then
     usage
 fi
 
+# here we can put the dnadiff call etc
+#isolate=${query%.fasta}  # strip .fasta from querry to get isolate id for -p value
+#dnadiff -p $isolate $reference $query   
+#python inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -t $isolate-temp.fasta -f $query
+# inversionfix.py will need to be made an exacutable in the path eventually
+# call $isolate-temp.fasta instead of $query from now on below
+
 read_fasta "$refdir" $reference
 read_fasta "$qrydir" $query
 
@@ -76,4 +83,4 @@ cat <<EOF
 EOF
 
 diff -irdb -U1 "$refdir" "$qrydir" \
-    | udiff2vcf
+    | udiff2vcf # | python inversionsertion.py
