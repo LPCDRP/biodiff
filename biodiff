@@ -7,6 +7,7 @@ VERSION=0.2.2
 reference="$1"
 query="$2"
 
+
 unset tmpdir
 tmpdir=$(mktemp -p /tmp -d biodiff.XXXXXX)
 refdir="$tmpdir/ref"
@@ -51,14 +52,16 @@ then
 fi
 
 # here we can put the dnadiff call etc
-#isolate=${query%.fasta}  # strip .fasta from querry to get isolate id for -p value
-#dnadiff -p $isolate $reference $query   
-#python inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -t $isolate-temp.fasta -f $query
+isolatenpath=${query%.fasta}  # get isolate ID by stripping suffix
+isolate=${isolatenpath##*/}   # and stripping path
+dnadiff -p $isolate $reference $query   
+echo "dnadiff finished"
+python /home/dconkleg/workspace/biodiff/inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -f $query -t $isolate-temp.fasta
 # inversionfix.py will need to be made an exacutable in the path eventually
 # call $isolate-temp.fasta instead of $query from now on below
 
 read_fasta "$refdir" $reference
-read_fasta "$qrydir" $query
+read_fasta "$qrydir" $isolate-temp.fasta
 
 # If we have one reference and one query, don't require matching identifiers
 if [ $(ls "$refdir" | wc -l) = 1 ] && [ $(ls "$qrydir" | wc -l) = 1 ]
