@@ -17,7 +17,7 @@ def main():
     parser.add_argument('-t', '--tfasta', help='temp fasta file', default='out-temp.fasta')
     args = parser.parse_args()
 
-    print(args.tfasta)
+    print(args)
     chromname = 'snps_indels|NC_001416.1|'
     # parse args.rdiff and make args.vcf with just the inversions, translocations, etc. in vcf format (no header)
     # which biodiff will eventually combine with its own vcf from the other differences it finds
@@ -43,33 +43,46 @@ def main():
     translocations = []
     breaks = []
     with open(args.qdiff) as qfile:
+        line2inv = 0
         for line in qfile:
             cleanline = line.strip('\n')
             qdiff = cleanline.split('\t')
-            if int(qdiff[4]) < 0:  # negative inversions have earlier genome position as END position. fixing
-                vardict = dict(Start=int(qdiff[3]), End=int(qdiff[2]), Length=int(qdiff[4]))
-            else:
-                vardict = dict(Start=int(qdiff[2]), End=int(qdiff[3]), Length=int(qdiff[4]))
-            if qdiff[1] == 'INV' and abs(vardict['Length']) > 2:
+            if qdiff[1] == 'INV' and line2inv == 0:  # INV ifo in 2 lines. first line has Start, 2nd has End
+                vardict = dict(Start=int(qdiff[2]))
                 inversions.append(vardict)
-                print(vardict)
-            if qdiff[1] == 'JMP':
-                translocations.append(vardict)
-            if qdiff[1] == 'BRK':
-               breaks.append(vardict)
+                line2inv = 1
+            elif qdiff[1] == 'INV':
+                inversions[-1]['End'] = int(qdiff[2])
+                line2inv = 0
+
+    # with open(args.qdiff) as qfile:
+    #     for line in qfile:
+    #         cleanline = line.strip('\n')
+    #         qdiff = cleanline.split('\t')
+    #         if int(qdiff[4]) < 0:  # negative inversions have earlier genome position as END position. fixing
+    #             vardict = dict(Start=int(qdiff[3]), End=int(qdiff[2]), Length=int(qdiff[4]))
+    #         else:
+    #             vardict = dict(Start=int(qdiff[2]), End=int(qdiff[3]), Length=int(qdiff[4]))
+    #         if qdiff[1] == 'INV' and abs(vardict['Length']) > 2:
+    #             inversions.append(vardict)
+    #             print(vardict)
+    #         if qdiff[1] == 'JMP':
+    #             translocations.append(vardict)
+    #         if qdiff[1] == 'BRK':
+    #            breaks.append(vardict)
     qrecord = SeqIO.parse(args.qfasta, 'fasta').next()  # read in the fasta file, should read only the first contig
     qseq = qrecord.seq  # get the sequence of the querry genome
+    fixedrecord = qrecord
     for invdict in inversions:
         before = qseq[0:invdict['Start']]
-        invseq = qseq[invdict['Start']:invdict['End']]
+        fixedinv = qseq[invdict['Start']:invdict['End']].reverse_complement()
         after = qseq[invdict['End']:]
-        fixedinv = invseq[::-1]
         qseq = before + fixedinv + after
     # next fix translocations
 
     # write out temp fasta
-    qrecord.seq = qseq
-    SeqIO.write(qrecord, args.tfasta, 'fasta')
+    fixedrecord.seq = qseq
+    SeqIO.write(fixedrecord, args.tfasta, 'fasta')
 
 if __name__ == '__main__':
     main()
