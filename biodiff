@@ -12,6 +12,9 @@ unset tmpdir
 tmpdir=$(mktemp -p /tmp -d biodiff.XXXXXX)
 refdir="$tmpdir/ref"
 qrydir="$tmpdir/qry"
+#refdir=refdirect
+#qrydir=querydirect
+
 
 cleanup () {
     rm -rf "$tmpdir"
@@ -56,7 +59,7 @@ isolatenpath=${query%.fasta}  # get isolate ID by stripping suffix
 isolate=${isolatenpath##*/}   # and stripping path
 dnadiff -p $isolate $reference $query   
 echo "dnadiff finished"
-python /home/dconkleg/workspace/biodiff/inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -f $query -t $isolate-temp.fasta
+./inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -f $query -t $isolate-temp.fasta
 # inversionfix.py will need to be made an exacutable in the path eventually
 # call $isolate-temp.fasta instead of $query from now on below
 
