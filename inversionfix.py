@@ -2,50 +2,64 @@
 import os
 import argparse
 from Bio import SeqIO
+from Bio.Blast.Applications import NcbiblastnCommandline
 
 
-GROUPHOME = os.environ['GROUPHOME']
+def refineposition(refasta, queryseq, position, out):
+    # blast 100 bp of query sequence around the start and end or each inversion against reference, to refine position
+    blast_command = NcbiblastnCommandline(cmd='blastn', task='megablast', subject=refasta,
+                                          outfmt=6, subject_loc=str(position-50) + '-' + str(position+50))
+    joinseq = ''.join(queryseq)
+    stdout, stderr = blast_command(stdin=joinseq)
+    qstop = stdout.rstrip('\n').split('\t')[out]
+    return int(qstop)
+
 
 def main():
-    #python ../inversionfix.py -r 4-0010.rdiff -v 4-0010-temp.vcf -q 4-0010.qdiff -f $GROUPHOME/data/genomes/4-0010.fasta -t 4-0010-temp.fasta
+    #python ../../inversionfix.py -r 4-0010.rdiff -v 4-0010-temp.vcf -q 4-0010.qdiff -f $GROUPHOME/data/genomes/4-0010.fasta -p $GROUPHOME/resources/H37Rv.fasta -t 4-0010-temp.fasta
     parser = argparse.ArgumentParser(description='finds inversions and adds them to vcf output of biodiff',
                                      epilog='Runs nucmer and show-diff on fasta files to find inversions')
     parser.add_argument('-r', '--rdiff', help='dnadiff output, reference coordinates', default='out.rdiff')
     parser.add_argument('-q', '--qdiff', help='dnadiff output, query coordinates', default='out.qdiff')
     parser.add_argument('-v', '--vcf', help='temp vcf file', default='out-temp.vcf')
     parser.add_argument('-f', '--qfasta', help='query fasta file')
+    parser.add_argument('-p', '--rfasta', help='reference fasta file')
     parser.add_argument('-t', '--tfasta', help='temp fasta file', default='out-temp.fasta')
     args = parser.parse_args()
 
     # Find inversions in terms of Query position, and output temp.fasta with those inversions undone
     # parse args.qdiff to get inversions in query coordinates
-    # parse args.qfasta to get fasta of query sequence,
-    # undo the inversions found in args.qdiff
-    # output noninverted fasta to args.tfasta, which biodiff will then use
     inversions = []  # stores locations of inversions in query sequence
     with open(args.qdiff) as qfile:
         line2inv = False  # dnadiff records inversions in 2 lines. first occurrence is start, 2nd is end.
         for line in qfile:
             cleanline = line.strip('\n')
             qdiff = cleanline.split('\t')
-            if qdiff[1] == 'INV' and not line2inv:  # INV ifo in 2 lines. first line has Start, 2nd has End
+            if qdiff[1] == 'INV' and not line2inv:  # first line of INV pair, append new inversion with Start key
                 vardict = dict(Start=int(qdiff[2]))
                 inversions.append(vardict)
                 line2inv = True
-            elif qdiff[1] == 'INV':
+            elif qdiff[1] == 'INV':  # 2nd linst of INV pair, set End key of last inversion dict in list
                 inversions[-1]['End'] = int(qdiff[2])
                 line2inv = False
 
+    # parse query sequence
     qrecord = SeqIO.parse(args.qfasta, 'fasta').next()  # read in the fasta file, should read only the first contig
-    qseq = qrecord.seq  # get the sequence of the querry genome
+    qseq = qrecord.seq  # get the sequence
+
+    # refine inversion coordinates using blast
+    for inv in inversions:
+        inv['Start'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['Start'], out=9)
+        inv['End'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['End'], out=8)
+
+    # undo the inversions found in args.qdiff
     fixedrecord = qrecord
     for invdict in inversions:
         before = qseq[0:invdict['Start']]
         fixedinv = qseq[invdict['Start']:invdict['End']].reverse_complement()
         after = qseq[invdict['End']:]
         qseq = before + fixedinv + after
-
-    # write out temp fasta
+    # output noninverted fasta to args.tfasta, which biodiff will then use
     fixedrecord.seq = qseq
     SeqIO.write(fixedrecord, args.tfasta, 'fasta')
 

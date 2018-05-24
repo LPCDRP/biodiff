@@ -60,7 +60,7 @@ isolate=${isolatenpath##*/}   # and stripping path
 #dnadiff -p $isolate $reference $query   
 #../../inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -f $query -t $isolate-temp.fasta
 dnadiff -p $tmpdir/$isolate $reference $query   
-../../inversionfix.py -r $tmpdir/$isolate.rdiff -q $tmpdir/$isolate.qdiff -v $tmpdir/$isolate-temp.vcf -f $query -t $tmpdir/$isolate-temp.fasta
+../../inversionfix.py -r $tmpdir/$isolate.rdiff -q $tmpdir/$isolate.qdiff -v $tmpdir/$isolate-temp.vcf -f $query -p $reference -t $tmpdir/$isolate-temp.fasta
 # inversionfix.py will need to be made an exacutable in the path eventually
 
 read_fasta "$refdir" $reference
