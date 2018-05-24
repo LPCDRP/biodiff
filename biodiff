@@ -54,12 +54,11 @@ then
     usage
 fi
 
-# here we can put the dnadiff call etc
+# call dnadiff to find location of inversions, in terms of querry and reference position
 isolatenpath=${query%.fasta}  # get isolate ID by stripping suffix
 isolate=${isolatenpath##*/}   # and stripping path
 dnadiff -p $isolate $reference $query   
-echo "dnadiff finished"
-./inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -f $query -t $isolate-temp.fasta
+../../inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -f $query -t $isolate-temp.fasta
 # inversionfix.py will need to be made an exacutable in the path eventually
 # call $isolate-temp.fasta instead of $query from now on below
 
@@ -89,4 +88,6 @@ cat <<EOF
 EOF
 
 diff -irdb -U1 "$refdir" "$qrydir" \
-    | udiff2vcf # | python inversionsertion.py
+    | udiff2vcf >> $isolate-temp.vcf  # append output of diff to temp.vcf file, which has the inversion calls
+
+sort -k2 -n $isolate-temp.vcf # sort by position, and output to stdout
