@@ -17,14 +17,12 @@ def main():
     parser.add_argument('-t', '--tfasta', help='temp fasta file', default='out-temp.fasta')
     args = parser.parse_args()
 
-    # Find inversions in terms of Querry position, and output temp.fasta with those inversions undone
-    # parse args.qdiff to get inversions in querry coordinates
-    # parse args.qfasta to get fasta of querry sequence,
+    # Find inversions in terms of Query position, and output temp.fasta with those inversions undone
+    # parse args.qdiff to get inversions in query coordinates
+    # parse args.qfasta to get fasta of query sequence,
     # undo the inversions found in args.qdiff
     # output noninverted fasta to args.tfasta, which biodiff will then use
-    inversions = []  # stores locations of inversions in querry sequence
-    translocations = []
-    breaks = []
+    inversions = []  # stores locations of inversions in query sequence
     with open(args.qdiff) as qfile:
         line2inv = False  # dnadiff records inversions in 2 lines. first occurrence is start, 2nd is end.
         for line in qfile:
@@ -52,7 +50,6 @@ def main():
     SeqIO.write(fixedrecord, args.tfasta, 'fasta')
 
     # Find inversions in terms of Reference position, and output them in VCF format
-    # chromname = 'snps_indels|NC_001416.1|'
     chromname = qrecord.id
     # parse args.rdiff and make args.vcf with just the inversions, translocations, etc. in vcf format (no header)
     # which biodiff will eventually combine with its own vcf from the other differences it finds
