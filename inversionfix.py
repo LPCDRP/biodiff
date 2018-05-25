@@ -5,14 +5,13 @@ from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 
 
-def refineposition(refasta, queryseq, position, out):
+def refineposition(refasta, queryseq, position):
     # blast 100 bp of query sequence around the start and end or each inversion against reference, to refine position
-    blast_command = NcbiblastnCommandline(cmd='blastn', task='megablast', subject=refasta,
-                                          outfmt=6, subject_loc=str(position-50) + '-' + str(position+50))
-    joinseq = ''.join(queryseq)
+    blast_command = NcbiblastnCommandline(cmd='blastn', task='megablast', subject=refasta, outfmt=6)
+    joinseq = ''.join(queryseq[(position-50):(position+50)])
     stdout, stderr = blast_command(stdin=joinseq)
-    qstop = stdout.rstrip('\n').split('\t')[out]
-    return int(qstop)
+    qstop = stdout.rstrip('\n').split('\t')[6]
+    return int(qstop) + (position-50) - 1  # -1 to put into 0 based indexing for biopython
 
 
 def main():
@@ -49,8 +48,8 @@ def main():
 
     # refine inversion coordinates using blast
     for inv in inversions:
-        inv['Start'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['Start'], out=9)
-        inv['End'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['End'], out=8)
+        inv['Start'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['Start'])
+        inv['End'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['End'])
 
     # undo the inversions found in args.qdiff
     fixedrecord = qrecord
