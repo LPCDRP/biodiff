@@ -8,10 +8,10 @@ from Bio.Blast.Applications import NcbiblastnCommandline
 def refineposition(refasta, queryseq, position):
     # blast 100 bp of query sequence around the start and end or each inversion against reference, to refine position
     blast_command = NcbiblastnCommandline(cmd='blastn', task='megablast', subject=refasta, outfmt=6)
-    joinseq = ''.join(queryseq[(position-50):(position+50)])
+    joinseq = ''.join(queryseq[(position-150):(position+150)])
     stdout, stderr = blast_command(stdin=joinseq)
     qstop = stdout.rstrip('\n').split('\t')[6]
-    return int(qstop) + (position-50) - 1  # -1 to put into 0 based indexing for biopython
+    return int(qstop) + (position-150)
 
 
 def main():
@@ -42,14 +42,17 @@ def main():
                 inversions[-1]['End'] = int(qdiff[2])
                 line2inv = False
 
-    # parse query sequence
+    # parse query and reference sequence
     qrecord = SeqIO.parse(args.qfasta, 'fasta').next()  # read in the fasta file, should read only the first contig
     qseq = qrecord.seq  # get the sequence
+    refrecord = SeqIO.parse(args.rfasta, 'fasta').next()
+    rseq = refrecord.seq
 
     # refine inversion coordinates using blast
     for inv in inversions:
-        inv['Start'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['Start'])
-        inv['End'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['End'])
+        inv['Start'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['Start']) - 1
+        # -1 is to convert from blast's 1 based counting to python's 0 based counting
+        inv['End'] = refineposition(refasta=args.rfasta, queryseq=qseq, position=inv['End']) - 1
 
     # undo the inversions found in args.qdiff
     fixedrecord = qrecord
@@ -75,11 +78,12 @@ def main():
             rdiff = cleanline.split('\t')
             # rdiff[2] is genome position, rdiff[1] is variation type (GAP, INV, etc)
             if rdiff[1] == 'INV' and not line2inv:
-                vcfstring = chromname + '\t' + rdiff[2] + '\t.\tN\tINV\t.\tPASS\t'
+                invstart = refineposition(args.qfasta, rseq, int(rdiff[2]))  # blast position in reference to query sequence
+                vcfstring = chromname + '\t' + str(invstart) + '\t.\tN\tINV\t.\tPASS\t'
                 line2inv = True
-                invstart = int(rdiff[2])
             elif rdiff[1] == 'INV':
-                vcfstring += 'SVLEN=' + str(int(rdiff[2]) - invstart) + ';SVTYPE=INV\n'
+                invend = refineposition(args.qfasta, rseq, int(rdiff[2]))
+                vcfstring += 'SVLEN=' + str(int(invend - invstart)) + ';SVTYPE=INV\n'
                 vcflines.append(vcfstring)
                 line2inv = False
     with open(args.vcf, 'w') as vfile:

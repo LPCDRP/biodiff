@@ -15,14 +15,15 @@ def main():
     SeqIO.write(record, args.cfasta, 'fasta') # write out same record in fasta with same bp per line for quick compare
     seq = record.seq  # get the sequence of the genome
 
-    inversion1 = seq[200:570].reverse_complement()
+    inversion1 = seq[200:570].reverse_complement()  # so inversion should be from 201 to 571 in 1 based counting
     iseq = seq[0:200] + inversion1 + seq[570:]
-    inversion2 = seq[1140:1590].reverse_complement()
+    inversion2 = seq[1140:1590].reverse_complement()  # 1141 to 1591
     iseq2 = iseq[0:1140] + inversion2 + iseq[1590:]
 
     irecord = record
     irecord.seq = iseq2
     SeqIO.write(irecord, args.ifasta, 'fasta')
+
 
 if __name__ == '__main__':
     main()
