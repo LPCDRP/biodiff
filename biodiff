@@ -12,8 +12,6 @@ unset tmpdir
 tmpdir=$(mktemp -p /tmp -d biodiff.XXXXXX)
 refdir="$tmpdir/ref"
 qrydir="$tmpdir/qry"
-#refdir=refdirect
-#qrydir=querydirect
 
 
 cleanup () {
@@ -57,8 +55,6 @@ fi
 # call dnadiff to find location of inversions, in terms of querry and reference position
 isolatenpath=${query%.fasta}  # get isolate ID by stripping suffix
 isolate=${isolatenpath##*/}   # and stripping path
-#dnadiff -p $isolate $reference $query   
-#../../inversionfix.py -r $isolate.rdiff -q $isolate.qdiff -v $isolate-temp.vcf -f $query -t $isolate-temp.fasta
 dnadiff -p $tmpdir/$isolate $reference $query   
 ../../inversionfix.py -r $tmpdir/$isolate.rdiff -q $tmpdir/$isolate.qdiff -v $tmpdir/$isolate-temp.vcf -f $query -p $reference -t $tmpdir/$isolate-temp.fasta
 # inversionfix.py will need to be made an exacutable in the path eventually
@@ -85,10 +81,15 @@ fi
 cat <<EOF
 ##fileformat=VCFv4.2
 ##source=biodiffV${VERSION}
+##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="Length of Structural Variation"
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Lable of Structural Variation Type. Key: INV=Inversion"
+##INFO=<ID=Ambiguity,Number=1,Type=String,Description="Reason for Ambiguous Variant Call. Key: Inside_Inversion=Biodiff assumes this variant occured after the surrounding inversion event however the true phylogeny is uncertain, Near_Inversion=Biodiff still produces erroneous SNP and INDEL calls near the edges of inversions"
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 EOF
 
 diff -irdb -U1 "$refdir" "$qrydir" \
     | udiff2vcf >> $tmpdir/$isolate-temp.vcf  # append output of diff to temp.vcf file, which has the inversion calls
 
-sort -k2 -n $tmpdir/$isolate-temp.vcf  # sort by position, and output to stdout
+python ../../variantfilter.py -i $tmpdir/$isolate-temp.vcf -o $tmpdir/$isolate-temp-filtered.vcf
+
+sort -k2 -n $tmpdir/$isolate-temp-filtered.vcf  # sort by position, and output to stdout

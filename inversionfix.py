@@ -78,8 +78,9 @@ def main():
             rdiff = cleanline.split('\t')
             # rdiff[2] is genome position, rdiff[1] is variation type (GAP, INV, etc)
             if rdiff[1] == 'INV' and not line2inv:
-                invstart = refineposition(args.qfasta, rseq, int(rdiff[2]))  # blast position in reference to query sequence
-                vcfstring = chromname + '\t' + str(invstart) + '\t.\tN\tINV\t.\tPASS\t'
+                invstart = refineposition(args.qfasta, rseq, int(rdiff[2]))
+                # refinepositition() will blast region around INV start in reference to query sequence
+                vcfstring = chromname + '\t' + str(invstart) + '\t.\tN\t<INV>\t.\tPASS\t'
                 line2inv = True
             elif rdiff[1] == 'INV':
                 invend = refineposition(args.qfasta, rseq, int(rdiff[2]))
