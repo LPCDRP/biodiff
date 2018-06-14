@@ -4,5 +4,6 @@ tests=$(ls "$DATADIR" | grep -v reference.fasta)
 
 for item in $tests
 do
+    echo "Checking lambda $item"
     integration $DATADIR/reference.fasta $DATADIR/$item
 done

@@ -1,7 +1,9 @@
 .DELETE_ON_ERROR:
 
 dist_bin_SCRIPTS = biodiff \
-                   udiff2vcf
+                   udiff2vcf \
+                   inversionfix.py \
+                   variantfilter.py
 
 PANDOC = @PANDOC@
 
