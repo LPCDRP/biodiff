@@ -23,10 +23,10 @@ def main():
                 outlist.append(line)
             # Note: All SV entrees are at the start of the input file
             else:  # parse other entries and adjust based on length of REF/ALT and position relative to inversions
-                if len(vcfbits[3]) > 10 or len(vcfbits[4]) > 10:
-                    vcfbits[3] = '.'
-                    vcfbits[4] = '.'
-                    vcfbits[7] = 'SVLEN=' + str(len(vcfbits[4]))
+                if len(vcfbits[3]) > 10:
+                    vcfbits[3] = '<SUBLEN=' + str(len(vcfbits[3])) + '>'
+                if len(vcfbits[4]) > 10:
+                    vcfbits[4] = '<SUBLEN=' + str(len(vcfbits[4])) + '>'
                 intrainv = False  # flag to track if variant is inside an inversion
                 nearinv = False  # flag to track if variant is near the edge of an inversion
                 for inv in inversionlist:
